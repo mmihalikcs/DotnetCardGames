@@ -9,6 +9,8 @@ namespace CardGames.War
 
         }
 
+        public int TurnCount { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         public Task<bool> IsEndOfGame()
         {
             throw new NotImplementedException();

@@ -9,6 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Games", "Games", "{5B846407
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardGames.War", "CardGames.War\CardGames.War.csproj", "{18BC6AA3-3772-4F47-BA5E-CDC0BFAADEEC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardGames.GUI", "CardGames.GUI\CardGames.GUI.csproj", "{19638799-8A99-4E88-8D95-79C1B2024B6F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +25,10 @@ Global
 		{18BC6AA3-3772-4F47-BA5E-CDC0BFAADEEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18BC6AA3-3772-4F47-BA5E-CDC0BFAADEEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18BC6AA3-3772-4F47-BA5E-CDC0BFAADEEC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19638799-8A99-4E88-8D95-79C1B2024B6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19638799-8A99-4E88-8D95-79C1B2024B6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19638799-8A99-4E88-8D95-79C1B2024B6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19638799-8A99-4E88-8D95-79C1B2024B6F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

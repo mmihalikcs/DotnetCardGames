@@ -8,6 +8,8 @@ namespace CardGames.Common.Interfaces
 {
     public interface IGameManager
     {
+        public int TurnCount { get; set; }
+
         public Task ProcessPreTurn();
 
         public Task ProcessTurn();
