@@ -50,3 +50,7 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+/.vs
+/CardGames/.vs/CardGames/v17
+/CardGames/CardGames.Common/obj
+/CardGames/CardGames.War/obj
