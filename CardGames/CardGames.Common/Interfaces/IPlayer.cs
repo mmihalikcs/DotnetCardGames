@@ -9,8 +9,12 @@ namespace CardGames.Common.Interfaces
 {
     public interface IPlayer
     {
-        public string Name { get; set; }
+        public int PlayerNumber { get; }
+
+        public string Name { get; }
         
         public DeckOfCards Deck { get; set; }
+
+        public bool IsOut { get; set; }
     }
 }

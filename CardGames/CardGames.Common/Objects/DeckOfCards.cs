@@ -4,7 +4,7 @@ namespace CardGames.Common.Objects
 {
     public sealed class DeckOfCards
     {
-        private List<Card> _Deck;
+        private Queue<Card> _Deck;
         private Random _Random;
 
         public DeckOfCards()
@@ -22,8 +22,13 @@ namespace CardGames.Common.Objects
         /// </summary>
         public void Shuffle()
         {
-            for (var i = 0; i < _Deck.Count; i++)
-                Swap(i, _Random.Next(i, _Deck.Count));
+            // Save off the queue as a list
+            var cardList = _Deck.ToList();
+            // Shuffle
+            for (var i = 0; i < cardList.Count; i++)
+                Swap(cardList, i, _Random.Next(i, cardList.Count));
+            // Reset the queue
+            _Deck = new Queue<Card>(cardList);
         }
 
         /// <summary>
@@ -33,7 +38,7 @@ namespace CardGames.Common.Objects
         /// <returns></returns>
         public Card Peek()
         {
-            return _Deck.Count > 0 ? _Deck[0] : null;
+            return _Deck.Peek();
         }
 
         /// <summary>
@@ -43,7 +48,7 @@ namespace CardGames.Common.Objects
         /// <returns></returns>
         public Card Draw()
         {
-            return Draw(1).First();
+            return _Deck.Dequeue();
         }
 
         /// <summary>
@@ -52,20 +57,36 @@ namespace CardGames.Common.Objects
         /// </summary>
         /// <param name="numberOfCards"></param>
         /// <returns></returns>
-        public List<Card> Draw(int numberOfCards)
+        public IEnumerable<Card> Draw(int numberOfCards)
         {
+            // Return Collection
             List<Card> cards = new List<Card>();
-            if (_Deck.Count > 0 && _Deck.Count >= numberOfCards)
-            {
-                // Get the list of cards
-                for (int i = 0; i < numberOfCards; i++)
-                    cards.Add(_Deck[i]);
-                // Finally remove the range
-                _Deck.RemoveRange(0, numberOfCards);
-                return cards;
-            }
-            return null;
+            // Logic
+            for (var i = 0; i < numberOfCards; i++)
+                cards.Add(_Deck.Dequeue());
+            // Return
+            return cards.AsEnumerable();
         }
+
+        /// <summary>
+        /// Add a card to the deck
+        /// </summary>
+        /// <param name="card"></param>
+        public void Add(Card card)
+        {
+            _Deck.Enqueue(card);
+        }
+
+        /// <summary>
+        /// Add several cards to the deck
+        /// </summary>
+        /// <param name="cards"></param>
+        public void Add(IEnumerable<Card> cards)
+        {
+            foreach (var card in cards)
+                _Deck.Enqueue(card);
+        }
+
         #endregion
 
         #region Private Helpers
@@ -74,20 +95,27 @@ namespace CardGames.Common.Objects
         /// 2-10, Jack, Queen, King, Ace
         /// </summary>
         /// <returns></returns>
-        List<Card> LoadDeck()
+        Queue<Card> LoadDeck()
         {
-            List<Card> tmpDeck = new List<Card>();
+            Queue<Card> tmpDeck = new Queue<Card>();
             // Add Suite Ranges
             foreach (var suit in Enum.GetValues(typeof(Suits)).Cast<Suits>())
-                tmpDeck.AddRange(Enumerable.Range(0, 13).Select(i => new Card(suit, (Values)i)));
+            {
+                // Generate an enumerable list
+                var range = Enumerable.Range(2, 13).Select(i => new Card(suit, i));
+                foreach (var card in range)
+                {
+                    tmpDeck.Enqueue(card);
+                }
+            }
             return tmpDeck;
         }
 
-        void Swap(int i, int j)
+        void Swap(List<Card> cards, int i, int j)
         {
-            var temp = _Deck[i];
-            _Deck[i] = _Deck[j];
-            _Deck[j] = temp;
+            var temp = cards[i];
+            cards[i] = cards[j];
+            cards[j] = temp;
         }
         #endregion
     }
