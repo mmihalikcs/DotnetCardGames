@@ -1,13 +1,11 @@
-﻿// See https://aka.ms/new-console-template for more information
-using CardGames.Common.Interfaces;
+﻿using CardGames.Common.Interfaces;
 using CardGames.Common.Objects;
-using CardGames.War;
 using System.Runtime.Loader;
 
 Console.WriteLine("Starting the Card Game OS....\n");
 
 // Init
-var assemblyLoader = new AssemblyLoadContext("PluginLoader", true);
+var _AssemblyLoader = new AssemblyLoadContext("PluginLoader", true);
 
 // Set break flag
 bool breakLoop = false;
@@ -26,46 +24,43 @@ while (!breakLoop)
     // Switch to find the correct logic option
     switch (Convert.ToInt32(rawSelection))
     {
-        case 0:
-            // Starting War
-            Console.WriteLine("\nStarting War!\n\n");
-            Console.Write("How many players? ");
-            var gameSelection = Console.ReadLine();
+        //case 0:
+        //    // Starting War
+        //    Console.WriteLine("\nStarting War!\n\n");
+        //    Console.Write("How many players? ");
+        //    var gameSelection = Console.ReadLine();
 
-            // Specify number of players
-            var gmeSelection = Convert.ToInt32(gameSelection);
-            var playerCounter = 1;
-            List<IPlayer> players = new List<IPlayer>();
-            for (int i = 0; i < gmeSelection; i++)
-            {
-                Console.Write($"What is the name of Player {i + 1}? ");
-                var name = Console.ReadLine() ?? string.Empty;
+        //    // Specify number of players
+        //    var gmeSelection = Convert.ToInt32(gameSelection);
+        //    var playerCounter = 1;
+        //    List<IPlayer> players = new List<IPlayer>();
+        //    for (int i = 0; i < gmeSelection; i++)
+        //    {
+        //        Console.Write($"What is the name of Player {i + 1}? ");
+        //        var name = Console.ReadLine() ?? string.Empty;
 
-                // Create a player
-                var player = new Player(playerCounter, name);
-                player.Deck.Shuffle();
+        //        // Create a player
+        //        var player = new Player(playerCounter, name);
+        //        player.Deck.Shuffle();
 
-                // Add to list
-                players.Add(player);
+        //        // Add to list
+        //        players.Add(player);
 
-                // Increment Counter
-                playerCounter++;
-            }
+        //        // Increment Counter
+        //        playerCounter++;
+        //    }
 
-            IGameManager gameManager = new WarGameManager(players);
-            while (!(await gameManager.IsEndOfGame()))
-            {
-                await gameManager.ProcessPreTurn();
-                await gameManager.ProcessTurn();
-                await gameManager.ProcessPostTurn();
-            }
-            break;
+        //    IGameManager gameManager = new WarGameManager(players);
+        //    while (!(await gameManager.IsEndOfGame()))
+        //    {
+        //        await gameManager.ProcessPreTurn();
+        //        await gameManager.ProcessTurn();
+        //        await gameManager.ProcessPostTurn();
+        //    }
+        //    break;
         case 1:
-            if (assemblyLoader.Assemblies.Count() == 0)
-            {
-                Console.WriteLine("\nNo Assemblies loaded!\n");
-                break;
-            }
+
+
 
             // Main Function
             await EnumeratePluginAssemblies();
@@ -128,7 +123,7 @@ Task LoadPluginAssembly()
     try
     {
         // Load the Assembly
-        assemblyLoader.LoadFromAssemblyPath(fullPath);
+        _AssemblyLoader.LoadFromAssemblyPath(fullPath);
     }
     catch (FileLoadException ex)
     {
@@ -143,12 +138,88 @@ Task LoadPluginAssembly()
 /// <summary>
 /// 
 /// </summary>
-Task EnumeratePluginAssemblies()
+async Task EnumeratePluginAssemblies()
 {
-    Console.WriteLine("\nDoing Stuff and Things\n");
+    // Check if there are assemblies
+    if (_AssemblyLoader.Assemblies.Count() == 0)
+    {
+        Console.WriteLine("\nNo Assemblies loaded!\n");
+        return;
+    }
 
+    // Enumerate
+    for (int i = 1; i <= _AssemblyLoader.Assemblies.Count(); i++)
+    {
+        // Get Assembly
+        var assembly = _AssemblyLoader.Assemblies.ElementAt(i - 1);
 
-    return Task.CompletedTask;
+        // Generate the list
+        Console.WriteLine($"\n1. {assembly.GetName().Name}");
+    }
+
+    Console.Write("\nWhich game do you want to play? ");
+    var selectionRaw = Console.ReadLine();
+
+    // Debug
+    Console.WriteLine(selectionRaw);
+    await ExecutePluginAssembly(Convert.ToInt32(selectionRaw));
+    return;
+}
+
+/// <summary>
+/// 
+/// </summary>
+async Task ExecutePluginAssembly(int selection)
+{
+    // Get the Assembly
+    var executingAssembly = _AssemblyLoader?.Assemblies.ElementAt(selection - 1);
+
+    // Get Game Manager interface type
+    var gameManagerType = executingAssembly?.GetTypes()
+                        .Where(t => !t.IsAbstract)
+                        .Where(t => !t.IsInterface)
+                        .Where(t => t.IsAssignableTo(typeof(IGameManager)))
+                        .First();
+    if (gameManagerType == null)
+        throw new NullReferenceException("gameManager");
+
+    // Get the Players interface type
+    //var playersType = executingAssembly?.GetTypes()
+
+    // TODO: Make this now hardcoded
+    var playerCounter = 1;
+    List<IPlayer> players = new List<IPlayer>();
+    for (int i = 0; i < 2; i++)
+    {
+        Console.Write($"What is the name of Player {i + 1}? ");
+        var name = Console.ReadLine() ?? string.Empty;
+
+        // Create a player
+        var player = new Player(playerCounter, name);
+        player.Deck.Shuffle();
+
+        // Add to list
+        players.Add(player);
+
+        // Increment Counter
+        playerCounter++;
+    }
+
+    // Activate it
+    var gameManagerInstance = Activator.CreateInstance(gameManagerType, players) as IGameManager;
+    if (gameManagerInstance == null)
+        throw new NullReferenceException("gameManagerInstance");
+
+    // Play the game
+    while (!(await gameManagerInstance.IsEndOfGame()))
+    {
+        await gameManagerInstance.ProcessPreTurn();
+        await gameManagerInstance.ProcessTurn();
+        await gameManagerInstance.ProcessPostTurn();
+    }
+
+    // Default Return
+    return;
 }
 
 /// <summary>
@@ -163,7 +234,7 @@ Task UnloadAllPlugins()
     // Perform the unload
     try
     {
-        assemblyLoader?.Unload();
+        _AssemblyLoader?.Unload();
     }
     catch (InvalidOperationException ex)
     {
