@@ -24,40 +24,6 @@ while (!breakLoop)
     // Switch to find the correct logic option
     switch (Convert.ToInt32(rawSelection))
     {
-        //case 0:
-        //    // Starting War
-        //    Console.WriteLine("\nStarting War!\n\n");
-        //    Console.Write("How many players? ");
-        //    var gameSelection = Console.ReadLine();
-
-        //    // Specify number of players
-        //    var gmeSelection = Convert.ToInt32(gameSelection);
-        //    var playerCounter = 1;
-        //    List<IPlayer> players = new List<IPlayer>();
-        //    for (int i = 0; i < gmeSelection; i++)
-        //    {
-        //        Console.Write($"What is the name of Player {i + 1}? ");
-        //        var name = Console.ReadLine() ?? string.Empty;
-
-        //        // Create a player
-        //        var player = new Player(playerCounter, name);
-        //        player.Deck.Shuffle();
-
-        //        // Add to list
-        //        players.Add(player);
-
-        //        // Increment Counter
-        //        playerCounter++;
-        //    }
-
-        //    IGameManager gameManager = new WarGameManager(players);
-        //    while (!(await gameManager.IsEndOfGame()))
-        //    {
-        //        await gameManager.ProcessPreTurn();
-        //        await gameManager.ProcessTurn();
-        //        await gameManager.ProcessPostTurn();
-        //    }
-        //    break;
         case 1:
             await EnumeratePluginAssemblies();
             break;
