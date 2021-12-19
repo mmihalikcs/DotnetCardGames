@@ -59,3 +59,5 @@ dkms.conf
 /CardGames/CardGames.GUI/bin/Debug/net6.0
 /CardGames/CardGames.War/bin/Debug/net6.0
 /CardGames/.vs/CardGames
+/CardGames/CardGames.Packaging/bin/AnyCPU/Debug
+/CardGames/CardGames.Packaging/obj
