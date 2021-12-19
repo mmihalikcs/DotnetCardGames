@@ -57,8 +57,37 @@ namespace CardGames.Common.Services
         /// <returns></returns>
         public Task<bool> LoadFromPluginFolder(string folderPath)
         {
+            // Check Folder Arg
+            if (string.IsNullOrWhiteSpace(folderPath))
+            {
+                _Logger.LogError("FilePath invalid or empty");
+                return Task.FromResult(false);
+            }
 
-            return Task.FromResult(false);
+            // Check Folder 
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+                return Task.FromResult(false);
+            }
+
+            // Enum Directories
+            var assemblyFiles = Directory.EnumerateFiles(folderPath, "*.dll");
+            try
+            {
+                foreach (var assemblyFilePath in assemblyFiles)
+                {
+                    _AssemblyLoader.LoadFromAssemblyPath(assemblyFilePath);
+                }
+                return Task.FromResult(true);
+            }
+            catch (Exception ex)
+            {
+                // Log
+                _Logger.LogError($"Failure to load assembly: {ex.Message}");
+                // Return
+                return Task.FromResult(false);
+            }
         }
 
         /// <summary>
