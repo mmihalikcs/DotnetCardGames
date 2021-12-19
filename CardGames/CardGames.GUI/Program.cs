@@ -1,8 +1,5 @@
-﻿using CardGames.Common.Interfaces;
-using CardGames.Common.Objects;
-using CardGames.Common.Services;
+﻿using CardGames.Common.Services;
 using Microsoft.Extensions.Logging;
-using System.Runtime.Loader;
 
 Console.WriteLine("Starting the Card Game OS....\n");
 
@@ -17,15 +14,15 @@ bool breakLoop = false;
 while (!breakLoop)
 {
     var rawSelection = await DisplayMenu();
-    while (!int.TryParse(rawSelection, out int selection) ||
-        (selection < 0 || selection > 4))
+    var menuSelection = int.MinValue;
+    while (!await HandleIntegerConversions(rawSelection, out menuSelection, new KeyValuePair<int, int>(1, 4)))
     {
         Console.Write("\nInvalid Selection! Please enter a new selection: ");
-        rawSelection = Console.ReadLine();
+        rawSelection = Console.ReadLine() ?? string.Empty;
     }
 
     // Switch to find the correct logic option
-    switch (Convert.ToInt32(rawSelection))
+    switch (menuSelection)
     {
         case 1:
             await EnumerateAndExecuteAssembly();
