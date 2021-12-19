@@ -63,3 +63,5 @@ dkms.conf
 /CardGames/CardGames.Packaging/obj
 /CardGames/CardGames.BlackJack/bin/Debug/net6.0
 /CardGames/CardGames.BlackJack/obj
+/CardGames/CardGames.Wpf/bin/Debug/net6.0-windows
+/CardGames/CardGames.Wpf/obj
