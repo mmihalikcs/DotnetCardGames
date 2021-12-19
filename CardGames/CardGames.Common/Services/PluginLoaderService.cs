@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using CardGames.Common.Interfaces;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +20,7 @@ namespace CardGames.Common.Services
         public Task<bool> LoadFromPluginFolder(string folderPath);
         public Task<bool> LoadFromPath(string filePath);
         public Task<bool> UnloadAllPlugins();
-        public Task ExecutePlugin(AssemblyName name);
+        public Task<bool> ExecutePlugin(AssemblyName assembly, List<string> playerNames);
     }
 
     public sealed class PluginLoaderService : IPluginLoaderService
@@ -67,8 +68,18 @@ namespace CardGames.Common.Services
         /// <returns></returns>
         public Task<bool> LoadFromPath(string filePath)
         {
-
-            return Task.FromResult(false);
+            try
+            {
+                _AssemblyLoader.LoadFromAssemblyPath(filePath);
+                return Task.FromResult(true);
+            }
+            catch (Exception ex)
+            {
+                // Log
+                _Logger.LogError($"Failure to load assembly: {ex.Message}");
+                // Return
+                return Task.FromResult(false);
+            }
         }
 
         /// <summary>
@@ -94,11 +105,58 @@ namespace CardGames.Common.Services
         /// 
         /// </summary>
         /// <returns></returns>
-        public Task ExecutePlugin(AssemblyName name)
+        public async Task<bool> ExecutePlugin(AssemblyName assembly, List<string> playerNames)
         {
+            // Get Assembly
+            var executingAssembly = _AssemblyLoader.Assemblies.Where(a => a.GetName().FullName == assembly.FullName).FirstOrDefault();
+            if (executingAssembly == null)
+                throw new NullReferenceException("assembly");
 
-            return Task.CompletedTask;
+            // Get Game Manager interface type
+            var gameManagerType = executingAssembly?.GetTypes()
+                                .Where(t => !t.IsAbstract)
+                                .Where(t => !t.IsInterface)
+                                .Where(t => t.IsAssignableTo(typeof(IGameManager)))
+                                .First();
+            if (gameManagerType == null)
+                throw new NullReferenceException("gameManager");
+
+            // Get the Players interface type
+            var playerType = executingAssembly?.GetTypes()
+                                .Where(t => !t.IsAbstract)
+                                .Where(t => !t.IsInterface)
+                                .Where(t => t.IsAssignableTo(typeof(IPlayer)))
+                                .First();
+            if (playerType == null)
+                throw new NullReferenceException("playerType");
+
+            // Create the player args
+            List<IPlayer> playerList = new List<IPlayer>();
+            for (int i = 0; i < playerNames.Count; i++)
+            {
+                // Create a player
+                var player = Activator.CreateInstance(playerType, i+1, playerNames[i]) as IPlayer;
+                if (player == null)
+                    throw new Exception("Failed to create class 'IPlayer'");
+                // Add to list
+                playerList.Add(player);
+            }
+
+            // Activate it
+            var gameManagerInstance = Activator.CreateInstance(gameManagerType, playerList) as IGameManager;
+            if (gameManagerInstance == null)
+                throw new NullReferenceException("gameManagerInstance");
+
+            // Play the game
+            while (!(await gameManagerInstance.IsEndOfGame()))
+            {
+                await gameManagerInstance.ProcessPreTurn();
+                await gameManagerInstance.ProcessTurn();
+                await gameManagerInstance.ProcessPostTurn();
+            }
+
+            // Default Return
+            return true;
         }
-
     }
 }

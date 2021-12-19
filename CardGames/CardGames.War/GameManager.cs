@@ -11,6 +11,11 @@ namespace CardGames.War
         public WarGameManager(List<IPlayer> players)
         {
             _Players = players;
+            // Shuffle Decks
+            foreach(WarPlayer player in _Players)
+            {
+                player.Deck.Shuffle();
+            }
         }
 
         // Properties
@@ -22,7 +27,7 @@ namespace CardGames.War
             // Iterate to check for cards remaining
             foreach (var player in _Players)
             {
-                if (player.Deck.Count <= 0)
+                if (player is WarPlayer wp && wp.Deck.Count <= 0)
                 {
                     Console.WriteLine(player.Name + " is out of cards!");
                     player.IsOut = true;
@@ -64,6 +69,7 @@ namespace CardGames.War
 
             // Pull out everyones card for the turn
             var cardTurn = _Players.Where(p => !p.IsOut)
+                .Select(p => (WarPlayer)p)
                 .Select(x => new WarHand
                 {
                     PlayerNumber = x.PlayerNumber,
@@ -80,7 +86,7 @@ namespace CardGames.War
 
             // Enqueue the cards on the winners deck
             var winningPlayer = _Players.Where(p => p.PlayerNumber == winningHandPlayer.PlayerNumber)
-                .First();
+                .First() as WarPlayer;
             winningPlayer.Deck.Add(cardTurn.Select(x => x.Card));
 
             // Return

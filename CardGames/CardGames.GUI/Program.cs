@@ -1,11 +1,14 @@
 ﻿using CardGames.Common.Interfaces;
 using CardGames.Common.Objects;
+using CardGames.Common.Services;
+using Microsoft.Extensions.Logging;
 using System.Runtime.Loader;
 
 Console.WriteLine("Starting the Card Game OS....\n");
 
 // Init
-var _AssemblyLoader = new AssemblyLoadContext("PluginLoader", true);
+ILoggerFactory _LoggerFactory = new LoggerFactory();
+IPluginLoaderService _LoaderService = new PluginLoaderService(_LoggerFactory.CreateLogger<PluginLoaderService>());
 
 // Set break flag
 bool breakLoop = false;
@@ -25,13 +28,13 @@ while (!breakLoop)
     switch (Convert.ToInt32(rawSelection))
     {
         case 1:
-            await EnumeratePluginAssemblies();
+            await EnumerateAndExecuteAssembly();
             break;
         case 2:
             await LoadPluginAssembly();
             break;
         case 3:
-            await UnloadAllPlugins();
+            await _LoaderService.UnloadAllPlugins();
             break;
         case 4:
             // Shutdown the loop
@@ -84,7 +87,7 @@ Task LoadPluginAssembly()
     try
     {
         // Load the Assembly
-        _AssemblyLoader.LoadFromAssemblyPath(fullPath);
+        var z = _LoaderService.LoadFromPath(fullPath);
     }
     catch (FileLoadException ex)
     {
@@ -99,111 +102,76 @@ Task LoadPluginAssembly()
 /// <summary>
 /// 
 /// </summary>
-async Task EnumeratePluginAssemblies()
+async Task EnumerateAndExecuteAssembly()
 {
     // Check if there are assemblies
-    if (_AssemblyLoader.Assemblies.Count() == 0)
+    if (_LoaderService.LoadedAssembliesCount == 0)
     {
         Console.WriteLine("\nNo Assemblies loaded!\n");
         return;
     }
 
     // Enumerate
-    for (int i = 0; i <= _AssemblyLoader.Assemblies.Count(); i++)
+    for (int i = 0; i < _LoaderService.LoadedAssembliesCount; i++)
     {
         // Get Assembly
-        var assembly = _AssemblyLoader.Assemblies.ElementAt(i);
+        var assemblyName = _LoaderService.GetLoadedAssembliesNames.ElementAt(i);
 
         // Generate the list
-        Console.WriteLine($"\n{i + 1}. {assembly.GetName().Name}");
+        Console.WriteLine($"\n{i + 1}. {assemblyName.Name}");
     }
 
+    // Select Game
     Console.Write("\nWhich game do you want to play? ");
-    var selectionRaw = Console.ReadLine();
+    var selectionString = Console.ReadLine() ?? string.Empty;
+    await HandleIntegerConversions(selectionString, out int gameSelection);
 
-    // Debug
-    Console.WriteLine(selectionRaw);
-    await ExecutePluginAssembly(Convert.ToInt32(selectionRaw));
+    // Select Player Count
+    Console.Write("\nEnter number of Players? ");
+    selectionString = Console.ReadLine() ?? string.Empty;
+    await HandleIntegerConversions(selectionString, out int playerCount);
+
+    // Get Names
+    List<string> playerNames = new List<string>(playerCount - 1);
+    for (int i = 0; i < playerCount; i++)
+    {
+        Console.Write($"\nEnter a name for Player {i + 1}: ");
+        var playerName = Console.ReadLine() ?? string.Empty;
+
+        // Add it
+        playerNames.Add(playerName);
+    }
+
+    // Call the Execute
+    await _LoaderService.ExecutePlugin(_LoaderService.GetLoadedAssembliesNames.ElementAt(gameSelection - 1), playerNames);
+
+    // Exit
     return;
 }
 
-/// <summary>
-/// 
-/// </summary>
-async Task ExecutePluginAssembly(int selection)
+Task<bool> HandleIntegerConversions(string selection, out int convertedValue, KeyValuePair<int, int>? bounds = null)
 {
-    // Get the Assembly
-    var executingAssembly = _AssemblyLoader?.Assemblies.ElementAt(selection - 1);
-
-    // Get Game Manager interface type
-    var gameManagerType = executingAssembly?.GetTypes()
-                        .Where(t => !t.IsAbstract)
-                        .Where(t => !t.IsInterface)
-                        .Where(t => t.IsAssignableTo(typeof(IGameManager)))
-                        .First();
-    if (gameManagerType == null)
-        throw new NullReferenceException("gameManager");
-
-    // Get the Players interface type
-    //var playersType = executingAssembly?.GetTypes()
-
-    // TODO: Make this now hardcoded
-    var playerCounter = 1;
-    List<IPlayer> players = new List<IPlayer>();
-    for (int i = 0; i < 2; i++)
+    // Init
+    convertedValue = -1;
+    // string null check
+    if (string.IsNullOrEmpty(selection))
+        return Task.FromResult(false);
+    // Try convert to a number
+    if (int.TryParse(selection, out int value))
     {
-        Console.Write($"What is the name of Player {i + 1}? ");
-        var name = Console.ReadLine() ?? string.Empty;
-
-        // Create a player
-        var player = new Player(playerCounter, name);
-        player.Deck.Shuffle();
-
-        // Add to list
-        players.Add(player);
-
-        // Increment Counter
-        playerCounter++;
+        // If bounds have been passed, check them
+        if (bounds.HasValue)
+        {
+            if (value < bounds.Value.Key)
+                return Task.FromResult(false);
+            if (value > bounds.Value.Value)
+                return Task.FromResult(false);
+        }
+        // Set the converted value
+        convertedValue = value;
+        return Task.FromResult(true);
     }
+    else
+        return Task.FromResult(false);
 
-    // Activate it
-    var gameManagerInstance = Activator.CreateInstance(gameManagerType, players) as IGameManager;
-    if (gameManagerInstance == null)
-        throw new NullReferenceException("gameManagerInstance");
-
-    // Play the game
-    while (!(await gameManagerInstance.IsEndOfGame()))
-    {
-        await gameManagerInstance.ProcessPreTurn();
-        await gameManagerInstance.ProcessTurn();
-        await gameManagerInstance.ProcessPostTurn();
-    }
-
-    // Default Return
-    return;
-}
-
-/// <summary>
-/// 
-/// </summary>
-Task UnloadAllPlugins()
-{
-    // Clear the console
-    Console.Clear();
-    // Report unload
-    Console.WriteLine("Unloading all plugins...");
-    // Perform the unload
-    try
-    {
-        _AssemblyLoader?.Unload();
-    }
-    catch (InvalidOperationException ex)
-    {
-        Console.WriteLine(ex.Message);
-        throw;
-    }
-
-    // Report Success
-    Console.WriteLine("\nUnload Complete!\n");
-    return Task.CompletedTask;
 }
