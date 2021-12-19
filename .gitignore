@@ -58,3 +58,4 @@ dkms.conf
 /CardGames/CardGames.Common/bin/Debug/net6.0
 /CardGames/CardGames.GUI/bin/Debug/net6.0
 /CardGames/CardGames.War/bin/Debug/net6.0
+/CardGames/.vs/CardGames

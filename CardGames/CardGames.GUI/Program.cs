@@ -59,12 +59,7 @@ while (!breakLoop)
         //    }
         //    break;
         case 1:
-
-
-
-            // Main Function
             await EnumeratePluginAssemblies();
-
             break;
         case 2:
             await LoadPluginAssembly();
@@ -148,13 +143,13 @@ async Task EnumeratePluginAssemblies()
     }
 
     // Enumerate
-    for (int i = 1; i <= _AssemblyLoader.Assemblies.Count(); i++)
+    for (int i = 0; i <= _AssemblyLoader.Assemblies.Count(); i++)
     {
         // Get Assembly
-        var assembly = _AssemblyLoader.Assemblies.ElementAt(i - 1);
+        var assembly = _AssemblyLoader.Assemblies.ElementAt(i);
 
         // Generate the list
-        Console.WriteLine($"\n1. {assembly.GetName().Name}");
+        Console.WriteLine($"\n{i + 1}. {assembly.GetName().Name}");
     }
 
     Console.Write("\nWhich game do you want to play? ");
