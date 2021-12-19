@@ -35,7 +35,8 @@ while (!breakLoop)
             break;
         case 4:
             // Shutdown the loop
-            Console.WriteLine("\nExiting Application! Goodbye!");
+            Console.Clear();
+            Console.WriteLine("Exiting Application! Goodbye!");
             breakLoop = true;
             break;
     }
@@ -43,7 +44,6 @@ while (!breakLoop)
 
 // Graceful exit
 Environment.Exit(0);
-
 
 /*
  * Private Helpers
@@ -58,7 +58,7 @@ Task<string> DisplayMenu()
     Console.WriteLine("2. Load Game");
     Console.WriteLine("3. Unload Game");
     Console.WriteLine("4. Quit");
-    Console.Write("\n\nPlease make a selection: ");
+    Console.Write("\nPlease make a selection: ");
 
     // Return
     return Task.FromResult(Console.ReadLine() ?? string.Empty);
@@ -67,7 +67,7 @@ Task<string> DisplayMenu()
 /// <summary>
 /// 
 /// </summary>
-Task LoadPluginAssembly()
+async Task LoadPluginAssembly()
 {
     // Clear
     Console.Clear();
@@ -84,16 +84,19 @@ Task LoadPluginAssembly()
     try
     {
         // Load the Assembly
-        var z = _LoaderService.LoadFromPath(fullPath);
+        var result = await _LoaderService.LoadFromPath(fullPath);
+        if (!result)
+            Console.WriteLine("\nAssembly failed to load.\n");
+        else
+            Console.WriteLine("\nAssembly successfully loaded!\n");
+        // Finish
+        return;
     }
-    catch (FileLoadException ex)
+    catch (Exception ex)
     {
-        throw ex;
+        Console.WriteLine($"\nError: {ex.Message}");
+        return;
     }
-
-    // Report Success
-    Console.WriteLine("\nAssembly Successfully Loaded!\n");
-    return Task.CompletedTask;
 }
 
 /// <summary>
@@ -101,6 +104,8 @@ Task LoadPluginAssembly()
 /// </summary>
 async Task EnumerateAndExecuteAssembly()
 {
+    // Clear
+    Console.Clear();
     // Check if there are assemblies
     if (_LoaderService.LoadedAssembliesCount == 0)
     {
@@ -121,12 +126,22 @@ async Task EnumerateAndExecuteAssembly()
     // Select Game
     Console.Write("\nWhich game do you want to play? ");
     var selectionString = Console.ReadLine() ?? string.Empty;
-    await HandleIntegerConversions(selectionString, out int gameSelection);
+    int gameSelection = -1;
+    while (!await HandleIntegerConversions(selectionString, out gameSelection, new KeyValuePair<int, int>(1, _LoaderService.LoadedAssembliesCount)))
+    {
+        Console.Write("\nInvalid Selection! Please enter a new selection: ");
+        selectionString = Console.ReadLine() ?? string.Empty;
+    };
 
     // Select Player Count
     Console.Write("\nEnter number of Players? ");
     selectionString = Console.ReadLine() ?? string.Empty;
-    await HandleIntegerConversions(selectionString, out int playerCount);
+    int playerCount = -1;
+    while (!await HandleIntegerConversions(selectionString, out playerCount, new KeyValuePair<int, int>(0, 5)))
+    {
+        Console.Write("\nInvalid Selection! Please enter a new selection: ");
+        selectionString = Console.ReadLine() ?? string.Empty;
+    }
 
     // Get Names
     List<string> playerNames = new List<string>(playerCount - 1);
