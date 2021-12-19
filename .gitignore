@@ -61,3 +61,5 @@ dkms.conf
 /CardGames/.vs/CardGames
 /CardGames/CardGames.Packaging/bin/AnyCPU/Debug
 /CardGames/CardGames.Packaging/obj
+/CardGames/CardGames.BlackJack/bin/Debug/net6.0
+/CardGames/CardGames.BlackJack/obj

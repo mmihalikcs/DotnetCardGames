@@ -68,18 +68,20 @@ namespace CardGames.Common.Services
             if (!Directory.Exists(folderPath))
             {
                 Directory.CreateDirectory(folderPath);
-                return Task.FromResult(false);
             }
 
             // Enum Directories
             var assemblyFiles = Directory.EnumerateFiles(folderPath, "*.dll");
             try
             {
+                var loadFlag = false;
                 foreach (var assemblyFilePath in assemblyFiles)
                 {
                     _AssemblyLoader.LoadFromAssemblyPath(assemblyFilePath);
+                    // Set the load flag
+                    loadFlag = true;
                 }
-                return Task.FromResult(true);
+                return Task.FromResult(loadFlag);
             }
             catch (Exception ex)
             {

@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CardGames.GUI", "CardGames.
 EndProject
 Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "CardGames.Packaging", "CardGames.Packaging\CardGames.Packaging.wapproj", "{C1A6ED67-074F-4E25-AA3A-227C27E7F22B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardGames.BlackJack", "CardGames.BlackJack\CardGames.BlackJack.csproj", "{80399127-321D-413F-8195-0873975B51B3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -117,12 +119,33 @@ Global
 		{C1A6ED67-074F-4E25-AA3A-227C27E7F22B}.Release|x86.ActiveCfg = Release|x86
 		{C1A6ED67-074F-4E25-AA3A-227C27E7F22B}.Release|x86.Build.0 = Release|x86
 		{C1A6ED67-074F-4E25-AA3A-227C27E7F22B}.Release|x86.Deploy.0 = Release|x86
+		{80399127-321D-413F-8195-0873975B51B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80399127-321D-413F-8195-0873975B51B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80399127-321D-413F-8195-0873975B51B3}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{80399127-321D-413F-8195-0873975B51B3}.Debug|ARM.Build.0 = Debug|Any CPU
+		{80399127-321D-413F-8195-0873975B51B3}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{80399127-321D-413F-8195-0873975B51B3}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{80399127-321D-413F-8195-0873975B51B3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{80399127-321D-413F-8195-0873975B51B3}.Debug|x64.Build.0 = Debug|Any CPU
+		{80399127-321D-413F-8195-0873975B51B3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{80399127-321D-413F-8195-0873975B51B3}.Debug|x86.Build.0 = Debug|Any CPU
+		{80399127-321D-413F-8195-0873975B51B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80399127-321D-413F-8195-0873975B51B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80399127-321D-413F-8195-0873975B51B3}.Release|ARM.ActiveCfg = Release|Any CPU
+		{80399127-321D-413F-8195-0873975B51B3}.Release|ARM.Build.0 = Release|Any CPU
+		{80399127-321D-413F-8195-0873975B51B3}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{80399127-321D-413F-8195-0873975B51B3}.Release|ARM64.Build.0 = Release|Any CPU
+		{80399127-321D-413F-8195-0873975B51B3}.Release|x64.ActiveCfg = Release|Any CPU
+		{80399127-321D-413F-8195-0873975B51B3}.Release|x64.Build.0 = Release|Any CPU
+		{80399127-321D-413F-8195-0873975B51B3}.Release|x86.ActiveCfg = Release|Any CPU
+		{80399127-321D-413F-8195-0873975B51B3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{18BC6AA3-3772-4F47-BA5E-CDC0BFAADEEC} = {5B846407-A253-41B4-801E-95222BAC2B2A}
+		{80399127-321D-413F-8195-0873975B51B3} = {5B846407-A253-41B4-801E-95222BAC2B2A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F9A5460F-F2F3-48CE-8FAF-802A0950D55D}

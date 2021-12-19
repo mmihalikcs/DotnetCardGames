@@ -71,22 +71,36 @@ async Task LoadPluginAssembly()
 {
     // Clear
     Console.Clear();
-    Console.Write("Enter the assembly fullpath that you intend on loading: ");
-    var fullPath = Console.ReadLine();
-
-    // Error Checking
-    while (!File.Exists(fullPath))
-    {
-        Console.Write("\nInvalid Path! Enter the assembly fullpath that you intend on loading: ");
-        fullPath = Console.ReadLine();
-    }
+    Console.Write("Enter the assembly fullpath that you intend on loading or load from the plugins directory [/plugins]: ");
+    var fullPath = Console.ReadLine() ?? string.Empty;
 
     try
     {
-        // Load the Assembly
-        var result = await _LoaderService.LoadFromPath(fullPath);
+        var result = false;
+        // Check for path or plugin
+        if (string.IsNullOrWhiteSpace(fullPath))
+        {
+            // Use the plugins directory
+            var pluginsDirectory = $"{Directory.GetCurrentDirectory()}//plugins";
+
+            // Load from the plugins directory
+            result = await _LoaderService.LoadFromPluginFolder(pluginsDirectory);
+        }
+        else
+        {
+            // Error Checking
+            while (!File.Exists(fullPath))
+            {
+                Console.Write("\nInvalid Path! Enter the assembly fullpath that you intend on loading: ");
+                fullPath = Console.ReadLine();
+            }
+
+            // Load the Assembly
+            result = await _LoaderService.LoadFromPath(fullPath);
+        }
+
         if (!result)
-            Console.WriteLine("\nAssembly failed to load.\n");
+            Console.WriteLine("\nAssembly was not found or failed to load.\n");
         else
             Console.WriteLine("\nAssembly successfully loaded!\n");
         // Finish

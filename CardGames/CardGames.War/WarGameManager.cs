@@ -1,5 +1,4 @@
 ﻿using CardGames.Common.Interfaces;
-using CardGames.Common.Objects;
 using CardGames.War.Models;
 
 namespace CardGames.War
