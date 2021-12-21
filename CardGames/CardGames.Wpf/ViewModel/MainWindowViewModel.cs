@@ -1,6 +1,8 @@
 ﻿using CardGames.Common.Services;
+using CardGames.Wpf.Models;
 using Prism.Commands;
 using System;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows.Input;
 
@@ -13,6 +15,20 @@ namespace CardGames.Wpf.ViewModel
         public MainWindowViewModel(IPluginLoaderService pluginService)
         {
             _PluginService = pluginService;
+            _PlayMenuItems = new ObservableCollection<MenuItemViewModel>();
+        }
+
+        // Property
+        public IPluginLoaderService PluginService
+        {
+            get { return _PluginService; }
+        }
+
+        private ObservableCollection<MenuItemViewModel> _PlayMenuItems;
+        public ObservableCollection<MenuItemViewModel> PlayMenuItems
+        {
+            get { return _PlayMenuItems; }
+            private set { _PlayMenuItems = value; }
         }
 
         #region Commands
@@ -26,8 +42,23 @@ namespace CardGames.Wpf.ViewModel
             {
                 return new DelegateCommand<object>(async (object obj) =>
                 {
-                    var pluginsDirectory = $"{Directory.GetCurrentDirectory}//plugins";
+                    var pluginsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "plugins");
                     var result = await _PluginService.LoadFromPluginFolder(pluginsDirectory);
+                    if (result)
+                    {
+                        // Clear the MenuItems
+                        _PlayMenuItems.Clear();
+
+                        // Load
+                        foreach (var assembly in _PluginService.GetLoadedAssembliesNames)
+                        {
+                            _PlayMenuItems.Add(new MenuItemViewModel()
+                            {
+                                Header = assembly?.Name ?? String.Empty
+                            });
+                        }
+
+                    }
                 },
                   (object obj) =>
                   {
@@ -49,7 +80,7 @@ namespace CardGames.Wpf.ViewModel
                 },
                   (object obj) =>
                   {
-                      return true;
+                      return _PluginService.LoadedAssembliesCount > 0;
                   });
             }
         }
@@ -91,6 +122,5 @@ namespace CardGames.Wpf.ViewModel
         }
 
         #endregion Commands
-
     }
 }

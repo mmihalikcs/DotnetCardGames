@@ -4,17 +4,28 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CardGames.Wpf"
+        xmlns:models="clr-namespace:CardGames.Wpf.Models"
         mc:Ignorable="d"
         Title="Card Games OS" Height="450" Width="800">
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_File">
-                <MenuItem Header="_Load" Command="{Binding LoadCommand}"/>
+                <MenuItem Header="_Load" Command="{Binding LoadCommand}" />
                 <MenuItem Header="_Unload" Command="{Binding UnloadCommand}"/>
                 <Separator />
                 <MenuItem Header="_Exit" Command="{Binding ExitCommand}"/>
             </MenuItem>
-            <MenuItem Header="_Play">
+            <MenuItem Name="PlayMenu" Header="_Play" ItemsSource="{Binding PlayMenuItems}">
+                <MenuItem.ItemContainerStyle>
+                    <Style TargetType="{x:Type MenuItem}">
+                        <Setter Property="Command" Value="{Binding Command}" />
+                    </Style>
+                </MenuItem.ItemContainerStyle>
+                <MenuItem.ItemTemplate>
+                    <HierarchicalDataTemplate DataType="{x:Type models:MenuItemViewModel}" ItemsSource="{Binding Path=MenuItems}">
+                        <TextBlock Text="{Binding Header}"/>
+                    </HierarchicalDataTemplate>
+                </MenuItem.ItemTemplate>
             </MenuItem>
             <MenuItem Header="_Settings">
                 <MenuItem Header="_Options"/>
